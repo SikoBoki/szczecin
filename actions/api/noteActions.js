@@ -1,39 +1,59 @@
 const Note = require('../../db/models/note')
 
 class noteActions {
-	getAllNotes(req, res) {
+	async getAllNotes(req, res) {
 		//get pobieranie wszystkich notatek
-		res.send('GET pobiera wszystkie notatki')
+		let doc
+		try {
+			doc = await Note.find({})
+			res.status(200).json(doc)
+		} catch (err) {
+			return res.status(500).json({ message: err.message })
+		}
+		console.log(doc)
 	}
 	main(req, res) {
 		//get strona główna wyświetlanie
 		res.send('Strona główna projektu działa')
 	}
-	getNote(req, res) {
+	async getNote(req, res) {
 		//get pobieranie  notatki
-		res.send('GET pobiera Info o notatce')
+		const id = req.params.id
+		const note = await Note.findOne({ _id: id })
+		res.status(200).json(note)
 	}
-	saveNote(req, res) {
+	async saveNote(req, res) {
 		//post służy do zapisywanie notatki
-		// const newNote = new Note({
-		// 	title: 'Upiec ciasto',
-		// 	body: 'Mleko cukier drożdże jajka',
-		// })
-		// newNote.save().then(() => {
-		// 	console.log('notatka została zapisana')
-		// })
 		const title = req.body.title
 		const body = req.body.body
-		res.send('POST notatka została zapisana. Tytuł: ' + title + ' Treść : ' + body)
+		let note
+		try {
+			note = new Note({
+				title: title,
+				body: body,
+			})
+			await note.save()
+		} catch (err) {
+			return res.status(422).json({ wiadomosc_bledu: err.message })
+		}
+		res.status(201).json(note)
 	}
-	updateNote(req, res) {
+	async updateNote(req, res) {
 		//put służy do edycji notatki
-		res.send('PUT notatka zaktualizowana')
-	}
-	deleteNote(req, res) {
 		const id = req.params.id
+		const title = req.body.title
+		const body = req.body.body
+		const note = await Note.findOne({ _id: id })
+		note.title = title
+		note.body = body
+		await note.save()
+		res.status(201).json(note)
+	}
+	async deleteNote(req, res) {
 		//delete  służy do usuwania notatki
-		res.send('DELETE notatka usunięta ID:' + id)
+		const id = req.params.id
+		await Note.deleteOne({ _id: id })
+		res.sendStatus(204)
 	}
 }
 
