@@ -14,7 +14,7 @@ class noteActions {
 	}
 	main(req, res) {
 		//get strona główna wyświetlanie
-		res.send('Strona główna projektu działa')
+		res.send('Strona główna projektu działa po zmianie folderu na backend')
 	}
 	async getNote(req, res) {
 		//get pobieranie  notatki
